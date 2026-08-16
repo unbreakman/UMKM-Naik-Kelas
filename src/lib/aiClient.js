@@ -1,4 +1,4 @@
-const MODEL = "gemini-2.0-flash";
+const MODEL = "gemini-2.5-flash";
 
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {

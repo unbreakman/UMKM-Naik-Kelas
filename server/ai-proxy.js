@@ -1,15 +1,20 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 
 const app = express();
 
-// allow cross-origin requests during local development
 app.use(cors());
 const port = process.env.PORT || 5174;
 
 app.use(express.json({ limit: '20mb' }));
 
-const MODEL = 'gemini-2.0-flash';
+const MODEL = 'gemini-3.6-flash';
+const API_KEY = process.env.GEMINI_API_KEY;
+
+if (!API_KEY) {
+  console.error('⚠️  GEMINI_API_KEY tidak ditemukan di .env — cek file .env di root project');
+}
 
 app.post('/api/generateContent', async (req, res) => {
   try {
@@ -23,64 +28,45 @@ app.post('/api/generateContent', async (req, res) => {
               parts: [
                 {
                   text: JSON.stringify({
-                    deskripsi: 'Kue bolu pandan lembut, wangi pandan asli, cocok untuk oleh-oleh dan acara keluarga.',
+                    deskripsi: 'Kue bolu pandan lembut, wangi pandan asli, cocok untuk oleh-oleh acara keluarga.',
                     hargaJual: 25000,
                     alasanHarga: 'Bahan asli pandan dan proses handmade, margin terjaga.',
-                    tagline: 'Bolu Pandan Rumahan'
-                  })
-                }
-              ]
-            }
-          }
-        ]
+                    tagline: 'Bolu Pandan Rumahan',
+                  }),
+                },
+              ],
+            },
+          },
+        ],
       });
     }
 
-    const API_KEY = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
-
     if (!API_KEY) {
-      console.error('GEMINI_API_KEY not set in environment');
-      return res.status(500).json({ error: 'GEMINI_API_KEY not set on server. Set environment variable GEMINI_API_KEY or VITE_GEMINI_API_KEY for local dev.' });
+      return res.status(500).json({ error: 'Server belum dikonfigurasi: GEMINI_API_KEY kosong' });
     }
 
-    const forwardBody = req.body;
-    console.log('Proxy: forwarding request to Google with model', MODEL);
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
 
-    const googleRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(forwardBody),
-      }
-    );
+    const geminiResponse = await fetch(geminiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req.body),
+    });
 
-    const text = await googleRes.text();
-    console.log('Proxy: Google response status', googleRes.status);
-    if (!googleRes.ok) {
-      console.error('Proxy: Google error body', text);
-      // try to forward error JSON if possible
-      try {
-        const parsed = JSON.parse(text);
-        return res.status(googleRes.status).json(parsed);
-      } catch (e) {
-        return res.status(googleRes.status).send(text);
-      }
+    const data = await geminiResponse.json();
+
+    if (!geminiResponse.ok) {
+      console.error('Gemini API error:', data);
+      return res.status(geminiResponse.status).json({ error: data.error?.message || 'Gemini API error' });
     }
 
-    // success: try to parse JSON and forward as JSON, otherwise send raw text
-    try {
-      const parsed = JSON.parse(text);
-      return res.status(googleRes.status).json(parsed);
-    } catch (e) {
-      return res.status(googleRes.status).send(text);
-    }
+    res.json(data);
   } catch (err) {
     console.error('Proxy error:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Terjadi kesalahan di server proxy' });
   }
 });
 
 app.listen(port, () => {
-  console.log(`AI proxy listening at http://localhost:${port}`);
+  console.log(`✅ AI proxy server jalan di http://localhost:${port}`);
 });
