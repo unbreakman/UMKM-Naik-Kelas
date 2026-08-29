@@ -1,31 +1,32 @@
 import { useState, useEffect } from 'react';
+import { getProductsFromDb, deleteProductFromDb } from '../lib/productsClient';
 
-function loadProducts() {
-  try {
-    const raw = localStorage.getItem('umkm_products');
-    if (!raw) return [];
-    return JSON.parse(raw);
-  } catch (e) {
-    return [];
-  }
-}
-
-export default function ProgressDashboard({ current }) {
-  const [products, setProducts] = useState(() => loadProducts());
+export default function ProgressDashboard({ refreshTrigger }) {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // keep in sync with localStorage changes from other tabs
-    function onStorage(e) {
-      if (e.key === 'umkm_products') setProducts(loadProducts());
-    }
-    window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
-  }, []);
+    getProductsFromDb()
+      .then(setProducts)
+      .catch((err) => console.error('Gagal load produk:', err))
+      .finally(() => setLoading(false));
+  }, [refreshTrigger]);
 
-  function remove(id) {
-    const next = products.filter((p) => p.id !== id);
-    setProducts(next);
-    localStorage.setItem('umkm_products', JSON.stringify(next));
+  async function remove(id) {
+    try {
+      await deleteProductFromDb(id);
+      setProducts((prev) => prev.filter((p) => p.id !== id));
+    } catch (err) {
+      alert('Gagal menghapus: ' + err.message);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="bg-white border rounded-2xl p-6 text-center">
+        <p className="font-body text-ink/60">Memuat data...</p>
+      </div>
+    );
   }
 
   if (products.length === 0) {

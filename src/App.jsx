@@ -4,11 +4,13 @@ import UploadForm from './components/UploadForm';
 import ResultPage from './components/ResultPage';
 import PlatformGuide from './components/PlatformGuide';
 import ProgressDashboard from './components/ProgressDashboard';
+import { saveProductToDb } from './lib/productsClient';
 
 function App() {
   const [step, setStep] = useState('landing');
   const [productData, setProductData] = useState(null);
   const [aiResult, setAiResult] = useState(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   return (
     <div className="min-h-screen bg-paper">
@@ -34,14 +36,21 @@ function App() {
 
               <div className="mt-4">
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     if (!aiResult) return alert('Belum ada hasil AI untuk disimpan');
-                    const raw = localStorage.getItem('umkm_products');
-                    const arr = raw ? JSON.parse(raw) : [];
-                    const id = Date.now().toString();
-                    arr.unshift({ id, namaProduk: productData?.namaProduk || 'Produk', deskripsi: aiResult.deskripsi, hargaJual: aiResult.hargaJual, tagline: aiResult.tagline });
-                    localStorage.setItem('umkm_products', JSON.stringify(arr));
-                    alert('Produk disimpan ke Dashboard');
+                    try {
+                      await saveProductToDb({
+                        namaProduk: productData?.namaProduk || 'Produk',
+                        deskripsi: aiResult.deskripsi,
+                        hargaJual: aiResult.hargaJual,
+                        alasanHarga: aiResult.alasanHarga,
+                        tagline: aiResult.tagline,
+                      });
+                      setRefreshTrigger((t) => t + 1);
+                      alert('Produk disimpan ke Dashboard');
+                    } catch (err) {
+                      alert('Gagal menyimpan: ' + err.message);
+                    }
                   }}
                   className="bg-ink text-paper px-4 py-2 rounded"
                 >
@@ -52,7 +61,7 @@ function App() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <PlatformGuide />
-              <ProgressDashboard current={aiResult} />
+              <ProgressDashboard refreshTrigger={refreshTrigger} />
             </div>
           </div>
         </div>

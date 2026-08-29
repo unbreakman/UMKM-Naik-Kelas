@@ -2,11 +2,11 @@ export default function Landing({ onStart }) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center">
       <span className="font-body text-sm tracking-widest uppercase text-marigoldDark mb-4">
-        Medan Bisa Digital · Medan Usaha
+        Asisten UMKM Digital
       </span>
 
       <h1 className="font-display font-extrabold text-4xl md:text-6xl text-ink leading-tight max-w-3xl">
-        Toko online kamu,
+        Lapakin toko online kamu,
         <br />
         <span className="text-marigold">siap dalam 5 menit.</span>
       </h1>

@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import { saveProduct, getAllProducts, deleteProduct } from './db.js';
 
 const app = express();
 
@@ -64,6 +65,49 @@ app.post('/api/generateContent', async (req, res) => {
   } catch (err) {
     console.error('Proxy error:', err);
     res.status(500).json({ error: 'Terjadi kesalahan di server proxy' });
+  }
+});
+
+app.post('/api/products', (req, res) => {
+  try {
+    const { namaProduk, deskripsi, hargaJual, alasanHarga, tagline } = req.body;
+    if (!namaProduk || !deskripsi) {
+      return res.status(400).json({ error: 'namaProduk dan deskripsi wajib diisi' });
+    }
+    const product = {
+      id: Date.now().toString(),
+      namaProduk,
+      deskripsi,
+      hargaJual: hargaJual || 0,
+      alasanHarga: alasanHarga || '',
+      tagline: tagline || '',
+      createdAt: new Date().toISOString(),
+    };
+    saveProduct(product);
+    res.json(product);
+  } catch (err) {
+    console.error('Save product error:', err);
+    res.status(500).json({ error: 'Gagal menyimpan produk' });
+  }
+});
+
+app.get('/api/products', (req, res) => {
+  try {
+    const products = getAllProducts();
+    res.json(products);
+  } catch (err) {
+    console.error('Get products error:', err);
+    res.status(500).json({ error: 'Gagal mengambil data produk' });
+  }
+});
+
+app.delete('/api/products/:id', (req, res) => {
+  try {
+    deleteProduct(req.params.id);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Delete product error:', err);
+    res.status(500).json({ error: 'Gagal menghapus produk' });
   }
 });
 
