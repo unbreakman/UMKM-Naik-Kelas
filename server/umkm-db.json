@@ -1,3 +1,22 @@
 {
-  "products": []
+  "products": [
+    {
+      "id": "1788014039874",
+      "namaProduk": "Nanirasik",
+      "deskripsi": "Nikmati kelezatan otentik Nanirasik khas Medan dengan paduan sensasi getir sedap andaliman dan kesegaran asam cikala alami. Olahan ikan mas bumbu melimpah ini dimasak perlahan hingga bumbunya meresap sempurna sampai ke dalam. Pas banget jadi santapan lezat keluarga yang bikin nambah nasi terus!",
+      "hargaJual": 35000,
+      "alasanHarga": "Harga Rp35.000 memberikan margin keuntungan ideal dari modal Rp15.000 untuk memperhitungkan biaya kemasan dan kerumitan pengolahan rempah otentik.",
+      "tagline": "Citarasa Otentik Rempah Khas Medan",
+      "createdAt": "2026-08-29T14:33:59.874Z"
+    },
+    {
+      "id": "1788013928113",
+      "namaProduk": "Rendang",
+      "deskripsi": "Nikmati kelezatan Rendang Daging Sapi khas dengan olahan santan murni dan bumbu rempah komplit yang dimasak meresap sempurna. Tekstur dagingnya super empuk dengan cita rasa gurih gurih pedas yang siap memanjakan lidah. Sangat praktis dan cocok untuk teman nasi hangat keluarga di Medan!",
+      "hargaJual": 28000,
+      "alasanHarga": "Harga Rp28.000 memberikan margin keuntungan sekitar 39% yang sangat bersaing untuk porsi rendang daging sapi berkualitas di pasar Medan.",
+      "tagline": "Kelezatan Rendang Daging Otentik Medan",
+      "createdAt": "2026-08-29T14:32:08.113Z"
+    }
+  ]
 }

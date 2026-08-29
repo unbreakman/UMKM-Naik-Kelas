@@ -39,16 +39,19 @@ function App() {
                   onClick={async () => {
                     if (!aiResult) return alert('Belum ada hasil AI untuk disimpan');
                     try {
-                      await saveProductToDb({
+                      console.log('💾 Menyimpan produk:', { namaProduk: productData?.namaProduk, ...aiResult });
+                      const response = await saveProductToDb({
                         namaProduk: productData?.namaProduk || 'Produk',
                         deskripsi: aiResult.deskripsi,
                         hargaJual: aiResult.hargaJual,
                         alasanHarga: aiResult.alasanHarga,
                         tagline: aiResult.tagline,
                       });
+                      console.log('✅ Produk berhasil disimpan:', response);
                       setRefreshTrigger((t) => t + 1);
                       alert('Produk disimpan ke Dashboard');
                     } catch (err) {
+                      console.error('❌ Error saat simpan:', err);
                       alert('Gagal menyimpan: ' + err.message);
                     }
                   }}
